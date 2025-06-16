@@ -56,7 +56,7 @@ function ascent!(A,B; maxiter=100, η=0.1, tol=1e-12, maxiter_pow=1000, tol_pow=
 
         for x in 1:q, y in 1:q, z in 1:q
             if x==y
-                Anew[x,x,z,:,:] .+= @views η .* (P[x,z,:,:]'Q[x,z,:,:] + 2 * P1[x,z,:,:]'Q1[x,z,:,:])  
+                Anew[x,x,z,:,:] .+= @views η .* (P[x,z,:,:]'Q[x,z,:,:] + 2 * P1[x,z,:,:]'Q1[x,z,:,:])
             else
                 Anew[x,y,z,:,:] .+= @views η .* (P[x,z,:,:]'B[x,y,z,:,:]*Q[y,z,:,:] + 2 * P1[x,z,:,:]'A[x,y,z,:,:]*Q1[y,z,:,:])
             end

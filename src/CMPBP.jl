@@ -3,9 +3,9 @@ module CMPBP
 using LinearAlgebra
 using Statistics
 
-export propagator, marginals, ascent!, ascent
+export potts2spin, propagator, marginals, magnetization, ascent!, ascent
 
-include("marginals.jl")
+include("observables.jl")
 include("truncation.jl")
 
 end

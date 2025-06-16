@@ -1,4 +1,5 @@
 E(x,y; q=2) = [i==x && j==y for i in 1:q, j in 1:q]
+potts2spin(x, i=0; q=2) = (x-1)/(q-1)*2 - 1
 
 function propagator(A,t)
     q = size(A,1)
@@ -25,4 +26,9 @@ function marginals(A, Δts...)
         prod(E(y)*p for (y,p) in zip(ys, Ps)) |> tr
     end
     P ./ sum(P)
+end
+
+function magnetization(A)
+    p = marginals(A)
+    return sum(potts2spin(x)*p[x] for x in eachindex(p))
 end
