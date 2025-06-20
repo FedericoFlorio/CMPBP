@@ -32,3 +32,26 @@ function magnetization(A)
     p = marginals(A)
     return sum(potts2spin(x)*p[x] for x in eachindex(p))
 end
+
+function logdot(A,B; maxiter=100)
+    q = size(A, 1)
+    da, db = size(A,4), size(B,4)
+    size(A,2)==size(A,3)==size(B,1)==size(B,2)==size(B,3)==q || error("Incompatible dimensions")
+    (size(A,5)==da && size(B,5)==db) || error("Incompatible dimensions")
+
+    S = build_S(A,B; q,da,db)
+    v = rand(q*q*da*db)
+    vold = similar(v)
+
+    for it in 1:maxiter
+        vold = copy(v)
+        v = S*v
+        v ./= norm(v)
+        if norm(v - vold) < 1e-16
+            break
+        end
+    end
+    return sum(S*v) / sum(v)
+end
+
+fidelity(A,B; kw...) = logdot(A,B; kw...) - 0.5 * (logdot(A,A; kw...) + logdot(B,B; kw...))
