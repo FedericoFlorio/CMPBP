@@ -1,55 +1,57 @@
-function findeigen_l!(P,A,B; maxiter_pow=100, tol_pow=1e-12, X=similar(P[1,1,:,:]))
-    Pold = copy(P)
+using Tullio
+
+function findeigen_l!(P,A,B; maxiter_pow=100, tol_pow=1e-12, X=similar(P[1,1,:,:]), Pold=copy(P))
     q = size(P,1)
     da, db = size(A,4), size(B,4)
 
     for it in 1:maxiter_pow
-        Pold .= P
+        copy!(Pold,P)
+        @tullio P[x,z,i,j] = Pold[x,z,i,k] * A[x,x,z,k,j]
+        @tullio P[x,z,i,j] += B[x,x,z,k,i] * Pold[x,z,k,j]
+        @tullio P[x,z,i,j] += Pold[x,zz,i,j] * (zz!=z)
         for x in 1:q, z in 1:q
-            mul!(P[x,z,:,:], Pold[x,z,:,:], A[x,x,z,:,:])
-            mul!(P[x,z,:,:], B[x,x,z,:,:]', Pold[x,z,:,:], 1.0, 1.0)
-            for zz in 1:q
-                zz==z && continue
-                P[x,z,:,:] .+= Pold[x,zz,:,:]
-            end
             for y in 1:q
                 y==x && continue
-                mul!(X, B[x,y,z,:,:]', Pold[y,z,:,:])
-                mul!(P[x,z,:,:], X, A[x,y,z,:,:], 1.0, 1.0)
+                @tullio X[i,j] = B[$x,$y,$z,k,i] * Pold[$y,$z,k,j]
+                # @views mul!(X, B[x,y,z,:,:]', Pold[y,z,:,:])
+                @tullio P[$x,$z,i,j] += X[i,k] * A[$x,$y,$z,k,j]
+                # @views mul!(P[x,z,:,:], X, A[x,y,z,:,:], 1.0, 1.0)
             end
         end
         P ./= sum(abs, P)
-        if sum(abs2, P - Pold) < tol_pow
-            # @show it
+        ϵ = sum((p-pold)^2 for (p,pold) in zip(P,Pold))
+        # @tullio ϵ := (Pold[i] - P[i])^2
+        if ϵ < tol_pow
+            @show it
             return P
         end
     end
     @show maxiter_pow
     return P
 end
-function findeigen_r!(Q,A,B; maxiter_pow=100, tol_pow=1e-12, X=similar(Q[1,1,:,:]))
-    Qold = copy(Q)
+function findeigen_r!(Q,A,B; maxiter_pow=100, tol_pow=1e-12, X=similar(Q[1,1,:,:]), Qold=copy(Q))
     q = size(Q,1)
     da, db = size(A,4), size(B,4)
 
     for it in 1:maxiter_pow
-        Qold .= Q
+        copy!(Qold, Q)
+        @tullio Q[x,z,i,j] = Qold[x,z,i,k] * A[x,x,z,j,k]
+        @tullio Q[x,z,i,j] += B[x,x,z,i,k] * Qold[x,z,k,j]
+        @tullio Q[x,z,i,j] += Qold[x,zz,i,j] * (zz!=z)
         for x in 1:q, z in 1:q
-            mul!(Q[x,z,:,:], Qold[x,z,:,:], A[x,x,z,:,:]')
-            mul!(Q[x,z,:,:], B[x,x,z,:,:], Qold[x,z,:,:], 1.0,1.0)
-            for zz in 1:q
-                zz==z && continue
-                Q[x,z,:,:] .+= Qold[x,zz,:,:]
-            end
             for y in 1:q
                 y==x && continue
-                mul!(X, B[x,y,z,:,:], Qold[y,z,:,:])
-                mul!(Q[x,z,:,:], X, A[x,y,z,:,:]', 1.0, 1.0)
+                @tullio X[i,j] = B[$x,$y,$z,i,k] * Qold[$y,$z,k,j]
+                # @views mul!(X, B[x,y,z,:,:], Qold[y,z,:,:])
+                @tullio Q[$x,$z,i,j] += X[i,k] * A[$x,$y,$z,j,k]
+                # @views mul!(Q[x,z,:,:], X, A[x,y,z,:,:]', 1.0, 1.0)
             end
         end
         Q ./= sum(abs, Q)
-        if sum(abs2, Q - Qold) < tol_pow
-            # @show it
+        ϵ = sum((q-qold)^2 for (q,qold) in zip(Q,Qold))
+        # @tullio ϵ := (Qold[i] - Q[i])^2
+        if ϵ < tol_pow
+            @show it
             return Q
         end
     end
@@ -66,42 +68,56 @@ function ascent!(A,B; maxiters=[100], ηs=[1e-2], tols=[1e-12], maxiter_pow=1000
     P = rand(q,q,db,da)
     Q1 = rand(q,q,da,da)
     P1 = rand(q,q,da,da)
+    Qold = similar(Q)
+    Pold = similar(P)
+    Q1old = similar(Q1)
+    P1old = similar(P1)
 
-    simQ = similar(Q[1,1,:,:])
-    simQ1 = similar(Q1[1,1,:,:])
-    X = similar(Q1[1,1,:,:])
+    simQ = zeros(size(Q,3), size(Q,4))
+    simQ1 = zeros(size(Q1,3), size(Q1,4))
+    X = zeros(size(Q1,3), size(Q1,4))
+
+    @show sizeof(Anew) + sizeof(Q) + sizeof(P) + sizeof(Q1) +
+          sizeof(P1) + sizeof(Qold) + sizeof(Pold) + sizeof(Q1old) + sizeof(P1old) +
+          sizeof(simQ) + sizeof(simQ1) + sizeof(X)
 
     for i in eachindex(ηs)
         η = ηs[i]
         maxiter = maxiters[i]
         tol = tols[i]
         for it in 1:maxiter
-            findeigen_l!(P, A, B; maxiter_pow, tol_pow, X=simQ)
-            findeigen_r!(Q, A, B; maxiter_pow, tol_pow, X=simQ)
-            findeigen_l!(P1, A, A; maxiter_pow, tol_pow, X=simQ1)
-            findeigen_r!(Q1, A, A; maxiter_pow, tol_pow, X=simQ1)
+            findeigen_l!(P, A, B; maxiter_pow, tol_pow, X=simQ, Pold)
+            findeigen_r!(Q, A, B; maxiter_pow, tol_pow, X=simQ, Qold)
+            findeigen_l!(P1, A, A; maxiter_pow, tol_pow, X=simQ1, Pold=P1old)
+            findeigen_r!(Q1, A, A; maxiter_pow, tol_pow, X=simQ1, Qold=Q1old)
 
-            n = sum(tr(P[x,z,:,:]'Q[x,z,:,:]) for x in 1:q, z in 1:q)
+            # n = sum(tr(P[x,z,:,:]'Q[x,z,:,:]) for x in 1:q, z in 1:q)
+            @tullio n := P[x,z,i,j] * Q[x,z,i,j]
             P ./= n
-            n1 = -2 * sum(tr(P1[x,z,:,:]'Q1[x,z,:,:]) for x in 1:q, z in 1:q)
-            P1 ./= n1
+            # n1 = -2 * sum(tr(P1[x,z,:,:]'Q1[x,z,:,:]) for x in 1:q, z in 1:q)
+            @tullio n1 := P1[x,z,i,j] * Q1[x,z,i,j]
+            P1 ./= -2n1
 
             for x in 1:q, y in 1:q, z in 1:q
                 # Step proportional to η*parameter
                 if x==y
-                    mul!(X, P[x,z,:,:]', Q[x,z,:,:])
-                    mul!(X, P1[x,z,:,:]', Q1[x,z,:,:], 2.0, 1.0)
-
-                    Anew[x,x,z,:,:] .+= @views η .* sign.(X) .* A[x,x,z,:,:]
+                    # @views mul!(X, P[x,z,:,:]', Q[x,z,:,:])
+                    @tullio X[i,j] = P[$x,$z,k,i] * Q[$x,$z,k,j]
+                    # @views mul!(X, P1[x,z,:,:]', Q1[x,z,:,:], 2.0, 1.0)
+                    @tullio X[i,j] += 2 * P1[$x,$z,k,i] * Q1[$x,$z,k,j]
                 else
-                    mul!(simQ1, P1[x,z,:,:]', A[x,y,z,:,:])
-                    mul!(X, simQ1, Q1[y,z,:,:])
+                    # @views mul!(simQ1, P1[x,z,:,:]', A[x,y,z,:,:])
+                    @tullio simQ1[i,j] = P1[$x,$z,k,i] * A[$x,$y,$z,k,j]
+                    # @views mul!(X, simQ1, Q1[y,z,:,:])
+                    @tullio X[i,j] = 2 * simQ1[i,k] * Q1[$y,$z,k,j]
 
-                    mul!(simQ', P[x,z,:,:]', B[x,y,z,:,:])
-                    mul!(X, simQ', Q[y,z,:,:], 1.0, 2.0)
-
-                    Anew[x,y,z,:,:] .+= @views η .* sign.(X) .* A[x,y,z,:,:]
+                    # @views mul!(simQ', P[x,z,:,:]', B[x,y,z,:,:])
+                    @tullio simQ[j,i] = P[$x,$z,k,i] * B[$x,$y,$z,k,j]
+                    # @views mul!(X, simQ', Q[y,z,:,:], 1.0, 2.0)
+                    @tullio X[i,j] += simQ[k,j] * Q[$y,$z,k,i]
                 end
+
+                Anew[x,y,z,:,:] .+= @views η .* sign.(X) .* A[x,y,z,:,:]
 
                 #Step proportional to η*gradient
                 # if x==y
