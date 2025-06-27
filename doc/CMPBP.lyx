@@ -1,0 +1,748 @@
+#LyX 2.4 created this file. For more info see https://www.lyx.org/
+\lyxformat 620
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children no
+\language american
+\language_package default
+\inputencoding utf8
+\fontencoding auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement class
+\float_alignment class
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content true
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Continuous-time Matrix-Product Belief Propagation
+\end_layout
+
+\begin_layout Standard
+At the stationary state,
+ a continuous-time process is described by the transition rate matrices:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{i}\left(x_{i}^{t+1}|x_{i}^{t},\boldsymbol{x}_{\partial i}^{t}\right)=\delta_{x_{i}^{t},x_{i}^{t+1}}\left(1-\Delta t\sum_{y}W\left(y|x_{i}^{t},\boldsymbol{x}_{\partial i}^{t}\right)\right)+\left(1-\delta_{x_{i}^{t},x_{i}^{t+1}}\right)\Delta t\,W\left(x_{i}^{t+1}|x_{i}^{t},\boldsymbol{x}_{\partial i}^{t}\right)=\delta_{x_{i}^{t},x_{i}^{t+1}}+\Delta t\,\tilde{W}\left(x_{i}^{t+1}|x_{i}^{t},\boldsymbol{x}_{\partial i}^{t}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+with 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\nospellcheck off
+\bar no
+\strikeout off
+\xout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\tilde{W}\left(y|x,\cdot\right)=W\left(y|x,\cdot\right)\,\,\forall x\neq y$
+\end_inset
+
+ and 
+\begin_inset Formula $\tilde{W}\left(x|x,\cdot\right)=-\sum_{y\neq x}W\left(y|x,\cdot\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Definition of messages
+\end_layout
+
+\begin_layout Standard
+The messages 
+\begin_inset Formula $\mu_{j\to i}$
+\end_inset
+
+ are meant to represent the conditional probability of variable 
+\begin_inset Formula $j$
+\end_inset
+
+ conditioned to variable 
+\begin_inset Formula $i$
+\end_inset
+
+ (in the cavity graph).
+ In the discrete version,
+ therefore,
+ they are defined as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\mu_{j\to i}\left(\overline{x}_{j}|\overline{x}_{i}\right) & =\text{tr}\left\{ \prod_{t=0}^{T/\Delta t}\left[\delta_{x_{j}^{t},x_{j}^{t+1}}\mathbb{I}+\Delta tA_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x_{i}^{t}\right)\right]\right\} \\
+ & =\text{tr}\left\{ \prod_{t=0}^{T/\Delta t}\left[\delta_{x_{j}^{t},x_{j}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes\mathbb{I}+\Delta te_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes A_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x_{i}^{t}\right)\right]\right\} 
+\end{align*}
+
+\end_inset
+
+with 
+\begin_inset Formula $A_{j\to i}\left(x,y,z\right)\in\mathbb{R}^{d\times d}$
+\end_inset
+
+.
+ This is to be intended in the 
+\begin_inset Formula $\Delta t\to0$
+\end_inset
+
+ and 
+\begin_inset Formula $T\to\infty$
+\end_inset
+
+ limit,
+ so that the 
+\begin_inset Formula $\text{tr}\left\{ \right\} $
+\end_inset
+
+ operator enforces the time-translation invariance proper of stationary states.
+\end_layout
+
+\begin_layout Standard
+The addition of 
+\begin_inset Formula $e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}$
+\end_inset
+
+ is useful to compute quantities such as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\sum_{\overline{x}_{j}}\mu_{j\to i}\left(\overline{x}_{j}|\overline{x}_{i}\right)=\text{tr}\left\{ \prod_{t=0}^{T/\Delta t}\left[\mathbb{I}\otimes\mathbb{I}+\Delta t\sum_{x,y}e_{x}e_{y}^{\dag}\otimes A_{j\to i}\left(x,y,x_{i}^{t}\right)\right]\right\} 
+\]
+
+\end_inset
+
+This form allows to define conveniently marginals and propagators when the 
+\begin_inset Formula $\Delta t\to0$
+\end_inset
+
+ limit is taken.
+\end_layout
+
+\begin_layout Section
+Propagator and marginals
+\end_layout
+
+\begin_layout Standard
+The single-time marginals can be computed as 
+\begin_inset Formula $p\left(x^{s}=y\right)=\sum_{\overline{x},\overline{z}}\delta_{x^{s},y}\mu\left(\overline{x}|\overline{z}\right)p\left(\overline{z}\right)$
+\end_inset
+
+ with a flat 
+\begin_inset Formula $p\left(z\right)$
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+p\left(x^{s}=y\right) & \propto\sum_{\overline{x}}\sum_{\overline{z}}\text{tr}\left\{ \delta_{x^{s},y}\times\prod_{t=0}^{T/\Delta t}\left[\delta_{x^{t},x^{t+1}}\mathbb{I}+\Delta t\,A\left(x^{t},x^{t+1},z^{t}\right)\right]\times\prod_{t}\left[\delta_{z^{t},z^{t+1}}+\Delta t\left(1-\delta_{z^{t},z^{t+1}}\right)\right]\right\} \\
+ & \propto\sum_{\overline{x}}\sum_{\overline{z}}\text{tr}\left\{ \prod_{t\leq s-1}\left[\delta_{x^{t},x^{t+1}}\mathbb{I}+\Delta tA\left(x^{t},x^{t+1},z^{t}\right)\right]\delta_{x^{s},y}\left[\delta_{x^{s},x^{s+1}}\mathbb{I}+\Delta tA\left(x^{s},x^{s+1},z^{s}\right)\right]\prod_{t>s}\left[\delta_{x^{t},x^{t+1}}\mathbb{I}+\Delta t\,A\left(x^{t},x^{t+1},z^{t}\right)\right]\times\prod_{t}\left[\delta_{z^{t},z^{t+1}}+\Delta t\left(1-\delta_{z^{t},z^{t+1}}\right)\right]\right\} \\
+ & \propto\text{tr}\left\{ \prod_{t\neq s}\sum_{x,x',z,z'}\left\{ e_{x}e_{x'}^{\dag}\otimes e_{z}e_{z'}^{\dag}\otimes\left[\delta_{z,z'}+\Delta t\left(1-\delta_{z,z'}\right)\right]\left[\delta_{x,x'}\mathbb{I}+\Delta t\,A\left(x,x',z\right)\right]\right\} \sum_{x,x',z,z'}\delta_{x,y}e_{x}e_{x'}^{\dag}\otimes e_{z}e_{z'}^{\dag}\otimes\left[\delta_{z,z'}+\Delta t\left(1-\delta_{z,z'}\right)\right]\left[\delta_{x,x'}\mathbb{I}+\Delta tA\left(x,x',z\right)\right]\right\} \\
+ & \propto\text{tr}\left\{ \left[\sum_{x,x'}e_{x}e_{x'}^{\dag}\otimes e_{z}e_{z'}^{\dag}\otimes\left(\delta_{z,z'}\delta_{x,x'}\mathbb{I}+\Delta t\delta_{z,z'}A\left(x,x',z\right)+\Delta t\left(1-\delta_{z,z'}\right)\mathbb{I}\right)\right]^{\frac{T}{\Delta t}}\left(e_{y}e_{y}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}+\Delta t\sum_{x'}e_{y}e_{x'}^{\dag}\otimes e_{z}e_{z}^{\dag}\otimes A\left(y,x',z\right)+\Delta t\left(1-\delta_{z,z'}\right)e_{y}e_{y}^{\dag}\otimes e_{z}e_{z'}^{\dag}\otimes\mathbb{I}\right)\right\} \\
+ & \propto\text{tr}\left\{ \left[\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\Delta t\sum_{x,x',z}e_{x}e_{x'}^{\dag}\otimes e_{z}e_{z}^{\dag}\otimes A\left(x,x',z\right)+\Delta t\sum_{x,z,z':z'\ne z}e_{x}e_{x}^{\dag}\otimes e_{z}e_{z'}^{\dag}\otimes\mathbb{I}\right]^{\frac{T}{\Delta t}}\left(e_{y}e_{y}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\right)\right\} \\
+ & \propto\text{tr}\left\{ \exp\left[T\left(\sum_{x,x',z}e_{x}e_{x'}^{\dag}\otimes e_{z}e_{z}^{\dag}\otimes A\left(x,x',z\right)+\sum_{x,z,z':z'\ne z}e_{x}e_{x}^{\dag}\otimes e_{z}e_{z'}^{\dag}\otimes\mathbb{I}\right)\right]\left(e_{y}e_{y}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\right)\right\} \\
+ & \propto\text{tr}\left\{ \text{exp}\left[TS\right]M_{y}\right\} 
+\end{align*}
+
+\end_inset
+
+with 
+\begin_inset Formula $S\coloneqq\sum_{x,x',z}e_{x}e_{x'}^{\dag}\otimes e_{z}e_{z}^{\dag}\otimes A\left(x,x',z\right)+\sum_{x,z,z':z'\ne z}e_{x}e_{x}^{\dag}\otimes e_{z}e_{z'}^{\dag}\otimes\mathbb{I}$
+\end_inset
+
+ and 
+\begin_inset Formula $M_{y}\coloneqq e_{y}e_{y}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}$
+\end_inset
+
+.
+ One can clearly recognize the propagator 
+\begin_inset Formula $\text{exp}\left[tS\right]$
+\end_inset
+
+ for time 
+\begin_inset Formula $t$
+\end_inset
+
+.
+ In the case of infinite time,
+ as above,
+ the propagator can be written as:
+\begin_inset Formula 
+\[
+\text{exp}\left[TS\right]=\Lambda vu^{\dag}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $u$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ are respectively the left and right eigenvectors of 
+\begin_inset Formula $S$
+\end_inset
+
+ relative to the largest real-part eigenvalue and 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ is an infinite constant.
+ 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Lambda=\lim_{T\to\infty}e^{T\lambda}$
+\end_inset
+
+,
+ where 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ is the largest real-part eigenvalue of 
+\begin_inset Formula $S$
+\end_inset
+
+.
+ Notice that in this whole derivation we have assumed that 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ is simple.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+p\left(x^{s}=y\right) & \propto\text{tr}\left\{ \text{exp}\left[TS\right]M_{y}\right\} \\
+ & \propto\text{tr}\left\{ vu^{\dag}M_{y}\right\} 
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For multiple-point marginals one can resort to a similar strategy:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+p\left(x^{t_{1}}=y_{1},x^{t_{2}}=y_{2},x^{t_{3}}=y_{3},...\right) & \propto\text{tr}\left\{ \exp\left(TS\right)\prod_{k}\left[M_{y_{k}}\exp\left(\left(t_{k+1}-t_{k}\right)S\right)\right]\right\} \\
+ & \propto\text{tr}\left\{ vu^{\dagger}\prod_{k}\left[M_{y_{k}}\exp\left(\left(t_{k+1}-t_{k}\right)S\right)\right]\right\} 
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Belief Propagation
+\end_layout
+
+\begin_layout Standard
+Considering a node 
+\begin_inset Formula $i$
+\end_inset
+
+ with three neighbors 
+\begin_inset Formula $j,k,l$
+\end_inset
+
+,
+ the BP update equation for message 
+\begin_inset Formula $\mu_{i\to l}$
+\end_inset
+
+ are:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\mu_{i\to l}\left(\overline{x}_{i}|\overline{x}_{l}\right)= & \sum_{\overline{x}_{j}}\sum_{\overline{x}_{k}}\prod_{t=0}^{T/\Delta t}f_{i}\left(x_{i}^{t+1}|x_{i}^{t},x_{j}^{t},x_{k}^{t},x_{l}^{t}\right)\mu_{j\to i}\left(\overline{x}_{j}|\overline{x}_{i}\right)\mu_{k\to i}\left(\overline{x}_{k}|\overline{x}_{i}\right)=\\
+= & \sum_{\overline{x}_{j}}\sum_{\overline{x}_{k}}\prod_{t=0}^{T/\Delta t}f_{i}\left(x_{i}^{t+1}|x_{i}^{t},x_{j}^{t},x_{k}^{t},x_{l}^{t}\right)\text{tr}\left\{ \prod_{t}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\right\} \mu_{j\to i}\left(\overline{x}_{j}|\overline{x}_{i}\right)\text{tr}\left\{ \prod_{t}e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\right\} \mu_{k\to i}\left(\overline{x}_{k}|\overline{x}_{i}\right)\\
+= & \sum_{\overline{x}_{j}}\sum_{\overline{x}_{k}}\prod_{t=0}^{T/\Delta t}f_{i}\left(x_{i}^{t+1}|x_{i}^{t},x_{j}^{t},x_{k}^{t},x_{l}^{t}\right)\text{tr}\left\{ \prod_{t}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\left[\delta_{x_{j}^{t},x_{j}^{t+1}}\mathbb{I}+\Delta tA_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x_{i}^{t}\right)\right]\otimes\left[\delta_{x_{k}^{t},x_{k}^{t+1}}\mathbb{I}+\Delta tA_{k\to i}\left(x_{k}^{t},x_{k}^{t+1},x_{i}^{t}\right)\right]\right\} \\
+= & \text{tr}\left\{ \prod_{t=0}^{T/\Delta t}\sum_{x_{j}^{t},x_{j}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}\left[\left(\delta_{x_{i}^{t},x_{i}^{t+1}}+\Delta t\tilde{W}\left(x_{i}^{t+1}|x_{i}^{t},x_{j}^{t},x_{k}^{t},x_{l}^{t}\right)\right)e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\left(\delta_{x_{j}^{t},x_{j}^{t+1}}\mathbb{I}+\Delta tA_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x_{i}^{t}\right)\right)\otimes\left(\delta_{x_{k}^{t},x_{k}^{t+1}}\mathbb{I}+\Delta tA_{k\to i}\left(x_{k}^{t},x_{k}^{t+1},x_{i}^{t}\right)\right)\right]\right\} \\
+= & \text{tr}\prod_{t=0}^{T/\Delta t}\delta_{x_{i}^{t},x_{i}^{t+1}}\sum_{x_{j}^{t},x_{j}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\delta_{x_{j}^{t},x_{j}^{t+1}}\mathbb{I}\otimes\delta_{x_{k}^{t},x_{k}^{t+1}}\mathbb{I}+\\
+ & +\Delta t\left[\left(\delta_{x_{i}^{t},x_{i}^{t+1}}\sum_{x_{j}^{t},x_{j}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\delta_{x_{j}^{t},x_{j}^{t+1}}\mathbb{I}\otimes A_{k\to i}\left(x_{k}^{t},x_{k}^{t+1},x_{i}^{t}\right)\right)+\left(\delta_{x_{i}^{t},x_{i}^{t+1}}\sum_{x_{j}^{t},x_{j}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes A_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x_{i}^{t}\right)\otimes\delta_{x_{k}^{t},x_{k}^{t+1}}\mathbb{I}\right)\right]+\\
+ & +\Delta t\left[\sum_{x_{j}^{t},x_{j}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}\tilde{W}\left(x_{i}^{t+1}|x_{i}^{t},x_{j}^{t},x_{k}^{t},x_{l}^{t}\right)\delta_{x_{j}^{t},x_{j}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes\delta_{x_{k}^{t},x_{k}^{t+1}}e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\right]\\
+= & \text{tr}\prod_{t=0}^{T/\Delta t}\delta_{x_{i}^{t},x_{i}^{t+1}}\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\\
+ & +\Delta t\left[\left(\delta_{x_{i}^{t},x_{i}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}\mathbb{I}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes A_{k\to i}\left(x_{k}^{t},x_{k}^{t+1},x_{i}^{t}\right)\right)+\left(\delta_{x_{i}^{t},x_{i}^{t+1}}\sum_{x_{j}^{t},x_{j}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes A_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x_{i}^{t}\right)\otimes\mathbb{I}\right)\right]+\\
+ & +\Delta t\left[\sum_{x_{j}^{t},x_{j}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}\tilde{W}\left(x_{i}^{t+1}|x_{i}^{t},x_{j}^{t},x_{k}^{t},x_{l}^{t}\right)\delta_{x_{j}^{t},x_{j}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes\delta_{x_{k}^{t},x_{k}^{t+1}}e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\right]\\
+= & \text{tr}\prod_{t=0}^{T/\Delta t}\delta_{x_{i}^{t},x_{i}^{t+1}}\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\\
+ & +\Delta t\left[\left(\delta_{x_{i}^{t},x_{i}^{t+1}}\sum_{x_{k}^{t},x_{k}^{t+1}}\mathbb{I}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes A_{k\to i}\left(x_{k}^{t},x_{k}^{t+1},x_{i}^{t}\right)\right)+\left(\delta_{x_{i}^{t},x_{i}^{t+1}}\sum_{x_{j}^{t},x_{j}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes A_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x_{i}^{t}\right)\otimes\mathbb{I}\right)\right]+\\
+ & +\Delta t\left[\sum_{x_{j}^{t}}\sum_{x_{k}^{t}}\tilde{W}\left(x_{i}^{t+1}|x_{i}^{t},x_{j}^{t},x_{k}^{t},x_{l}^{t}\right)e_{x_{j}^{t}}e_{x_{j}^{t}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t}}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\right]\\
+= & \text{tr}\left\{ \prod_{t=0}^{T/\Delta t}\left[\delta_{x_{i}^{t},x_{i}^{t+1}}\mathbb{I}+\Delta tA_{i\to l}\left(x_{i}^{t},x_{i}^{t+1},x_{l}^{t}\right)\right]\right\} 
+\end{align*}
+
+\end_inset
+
+with:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+A_{i\to l}^{t}\left(x,x,z\right) & =\left(\sum_{x_{k}^{t},x_{k}^{t+1}}\mathbb{I}\otimes e_{x_{k}^{t}}e_{x_{k}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes A_{k\to i}\left(x_{k}^{t},x_{k}^{t+1},x\right)\right)+\left(\sum_{x_{j}^{t},x_{j}^{t+1}}e_{x_{j}^{t}}e_{x_{j}^{t+1}}^{\dag}\otimes\mathbb{I}\otimes A_{j\to i}\left(x_{j}^{t},x_{j}^{t+1},x\right)\otimes\mathbb{I}\right)+\sum_{x_{j}^{t}}\sum_{x_{k}^{t}}\tilde{W}\left(x|x,x_{j}^{t},x_{k}^{t},z\right)e_{x_{j}^{t}}e_{x_{j}^{t}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t}}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\\
+A_{i\to l}^{t}\left(x,y,z\right) & =\sum_{x_{j}^{t}}\sum_{x_{k}^{t}}\tilde{W}\left(y|x,x_{j}^{t},x_{k}^{t},z\right)e_{x_{j}^{t}}e_{x_{j}^{t}}^{\dag}\otimes e_{x_{k}^{t}}e_{x_{k}^{t}}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Truncation
+\end_layout
+
+\begin_layout Standard
+As it can be clearly seen in the previous section,
+ the BP update step makes the bondsize grow from 
+\begin_inset Formula $d$
+\end_inset
+
+ to 
+\begin_inset Formula $\left(qd\right)^{|\partial i|}$
+\end_inset
+
+.
+ Therefore,
+ one needs a way to measure the similarity of two cMPS and a truncation scheme to reduce the bondsize.
+\end_layout
+
+\begin_layout Subsection
+Overlap
+\end_layout
+
+\begin_layout Standard
+As already mentioned,
+ the messages can be thought as conditional probability distributions 
+\begin_inset Formula $\mu\left(x|z\right)$
+\end_inset
+
+.
+ However,
+ in the cavity graph,
+ these correspond to joint probability distributions 
+\begin_inset Formula $\mu\left(x,z\right)$
+\end_inset
+
+.
+ Then,
+ one can calculate the overlap between two messages 
+\begin_inset Formula $\mu$
+\end_inset
+
+ and 
+\begin_inset Formula $\nu$
+\end_inset
+
+ as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\langle\mu|\nu\rangle=\sum_{x}\sum_{z}\mu\left(x,z\right)\nu\left(x,z\right)p\left(z\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In light of this,
+ the overlap between two cMPS can be defined as:
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Explanation:
+ formula,
+ separate trajectories depending on number of jumps
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\left\langle A|B\right\rangle _{T}:= & \lim_{\Delta t\to0}\sum_{\underline{z}}\sum_{\underline{x}}\text{tr}\left\{ \prod_{t=0}^{T/\Delta t}\left[\delta_{z^{t},z^{t+1}}+\Delta t\left(1-\delta_{z^{t},z^{t+1}}\right)\right]\times\left[\delta_{x^{t},x^{t+1}}\left(\mathbb{I}\otimes\mathbb{I}+\Delta t\left\{ A\left(x^{t},x^{t+1},z^{t}\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x^{t},x^{t+1},z^{t}\right)\right\} \right)+\Delta t\left(1-\delta_{x^{t},x^{t+1}}\right)A\left(x^{t},x^{t+1},z^{t}\right)\otimes B\left(x^{t},x^{t+1},z^{t}\right)\right]\right\} \\
+= & \lim_{\Delta t\to0}\text{tr}\prod_{t=0}^{T/\Delta t}\sum_{z^{t},z^{t+1}}\sum_{x^{t},x^{t+1}}e_{z^{t}}e_{z^{t+1}}^{\dag}\otimes e_{x^{t}}e_{x^{t+1}}^{\dag}\otimes\left[\delta_{z^{t},z^{t+1}}+\Delta t\left(1-\delta_{z^{t},z^{t+1}}\right)\right]\times\\
+ & \times\left[\delta_{x^{t},x^{t+1}}\left(\mathbb{I}\otimes\mathbb{I}+\Delta t\left\{ A\left(x^{t},x^{t+1},z^{t}\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x^{t},x^{t+1},z^{t}\right)\right\} \right)+\Delta t\left(1-\delta_{x^{t},x^{t+1}}\right)A\left(x^{t},x^{t+1},z^{t}\right)\otimes B\left(x^{t},x^{t+1},z^{t}\right)\right]\\
+= & \lim_{\Delta t\to0}\text{tr}\prod_{t=0}^{T/\Delta t}\bigg[\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\Delta t\sum_{z^{t}\neq z^{t+1}}e_{z^{t}}e_{z^{t+1}}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\\
+ & +\Delta t\sum_{x^{t},z^{t}}e_{z^{t}}e_{z^{t}}^{\dag}\otimes e_{x^{t}}e_{x^{t}}^{\dag}\otimes\left\{ A\left(x^{t},x^{t},z^{t}\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x^{t},x^{t},z^{t}\right)\right\} +\Delta t\sum_{z^{t}}\sum_{x^{t}\neq x^{t+1}}e_{z^{t}}e_{z^{t}}^{\dag}\otimes e_{x^{t}}e_{x^{t+1}}^{\dag}\otimes A\left(x^{t},x^{t+1},z^{t}\right)\otimes B\left(x^{t},x^{t+1},z^{t}\right)\bigg]\\
+= & \lim_{\Delta t\to0}\text{tr}\prod_{t=0}^{T/\Delta t}\exp\Delta t\bigg[\sum_{z^{t}\neq z^{t+1}}e_{z^{t}}e_{z^{t+1}}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\sum_{z^{t}}\sum_{x^{t}}e_{z^{t}}e_{z^{t}}^{\dag}\otimes e_{x^{t}}e_{x^{t}}^{\dag}\otimes\left\{ A\left(x^{t},x^{t},z^{t}\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x^{t},x^{t},z^{t}\right)\right\} +\\
+ & +\sum_{z^{t}}\sum_{x^{t}\neq x^{t+1}}e_{z^{t}}e_{z^{t}}^{\dag}\otimes e_{x^{t}}e_{x^{t+1}}^{\dag}\otimes A\left(x^{t},x^{t+1},z^{t}\right)\otimes B\left(x^{t},x^{t+1},z^{t}\right)\bigg]\\
+= & \text{tr}\exp T\Biggl\{\sum_{z\neq z'}e_{z}e_{z'}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\sum_{z}\sum_{x}e_{z}e_{z}^{\dag}\otimes e_{x}e_{x}^{\dag}\otimes\left(A\left(x,x,z\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x,x,z\right)\right)+\\
+ & +\sum_{z}\sum_{x\neq y}e_{z}e_{z}^{\dag}\otimes e_{x}e_{y}^{\dag}\otimes A\left(x,y,z\right)\otimes B\left(x,y,z\right)\Biggr\}\\
+= & \text{tr}\text{exp}\left(TS_{AB}\right)
+\end{align*}
+
+\end_inset
+
+where:
+\begin_inset Formula 
+\[
+S_{AB}\coloneqq\sum_{z\neq z'}e_{z}e_{z'}^{\dag}\otimes\mathbb{I}\otimes\mathbb{I}\otimes\mathbb{I}+\sum_{z}\sum_{x}e_{z}e_{z}^{\dag}\otimes e_{x}e_{x}^{\dag}\otimes\left(A\left(x,x,z\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x,x,z\right)\right)+\sum_{z}\sum_{x\neq y}e_{z}e_{z}^{\dag}\otimes e_{x}e_{y}^{\dag}\otimes A\left(x,y,z\right)\otimes B\left(x,y,z\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We need the eigenvalue of 
+\begin_inset Formula $S_{AB}$
+\end_inset
+
+ with the largest real part.
+ This can be found by power method.
+ It can be noticed that the eigenvectors of 
+\begin_inset Formula $S_{AB}$
+\end_inset
+
+ are of the form 
+\begin_inset Formula $\sum_{x,z}e_{z}\otimes e_{x}\otimes q\left(x,z\right)$
+\end_inset
+
+.
+ Indeed:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+S_{AB}\left(\sum_{x'',z''}e_{z''}\otimes e_{x''}\otimes q\left(x'',z''\right)\right)= & \sum_{x''}\sum_{z,z',z'':z\neq z'}\delta_{z',z''}e_{z}\otimes e_{x''}\otimes q\left(x'',z''\right)+\sum_{z,z''}\sum_{x,x''}\delta_{z,z''}\delta_{x,x''}e_{z}\otimes e_{x}\otimes\left\{ A\left(x,x,z\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x,x,z\right)\right\} q\left(x'',z''\right)+\\
+ & +\sum_{z,z''}\sum_{x,y,x'':x\neq y}\delta_{z,z''}\delta_{y,x''}e_{z}\otimes e_{x}\otimes\left(A\left(x,y,z\right)\otimes B\left(x,y,z\right)\right)q\left(x'',z''\right)\\
+= & \sum_{x}\sum_{z\neq z'}e_{z}\otimes e_{x}\otimes q\left(x,z'\right)+\sum_{x}\sum_{z}e_{z}\otimes e_{x}\otimes\left\{ A\left(x,x,z\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x,x,z\right)\right\} q\left(x,z\right)+\sum_{x\neq y}\sum_{z}e_{z}\otimes e_{x}\otimes\left(A\left(x,y,z\right)\otimes B\left(x,y,z\right)\right)q\left(y,z\right)\\
+= & \sum_{x,z}e_{z}\otimes e_{x}\otimes\bigg(\sum_{z':z'\neq z}q\left(x,z'\right)+\left\{ A\left(x,x,z\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x,x,z\right)\right\} q\left(x,z\right)+\sum_{y:y\neq x}\left(A\left(x,y,z\right)\otimes B\left(x,y,z\right)\right)q\left(y,z\right)\bigg)\\
+= & \lambda_{AB}\sum_{x,z}e_{z}\otimes e_{x}\otimes q\left(x,z\right)
+\end{align*}
+
+\end_inset
+
+This means that:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\forall x,z:\lambda_{AB}q\left(x,z\right)= & \sum_{z':z'\neq z}q\left(x,z'\right)+\left\{ A\left(x,x,z\right)\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x,x,z\right)\right\} q\left(x,z\right)+\sum_{y:y\neq x}\left(A\left(x,y,z\right)\otimes B\left(x,y,z\right)\right)q\left(y,z\right)\\
+\lambda_{AB}Q\left(x,z\right)= & Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z':z'\neq z}Q\left(x,z'\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}\\
+ & \text{and}\\
+\lambda_{AB}p\left(x,z\right)= & \sum_{z':z'\neq z}p\left(x,z'\right)+\left\{ A\left(x,x,z\right)^{\dag}\otimes\mathbb{I}+\mathbb{I}\otimes B\left(x,x,z\right)^{\dag}\right\} p\left(x,z\right)+\sum_{y:y\neq x}\left(A\left(y,x,z\right)^{\dag}\otimes B\left(y,x,z\right)^{\dag}\right)p\left(y,z\right)\\
+\lambda_{AB}P\left(x,z\right)= & P\left(x,z\right)A\left(x,x,z\right)+B\left(x,x,z\right)^{\dag}P\left(x,z\right)+\sum_{z":z"\neq z}P\left(x,z"\right)+\sum_{y:y\neq x}B\left(y,x,z\right)^{\dag}P\left(y,z\right)A\left(y,x,z\right)
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Variational optimization
+\end_layout
+
+\begin_layout Standard
+As before,
+ in the 
+\begin_inset Formula $T\to\infty$
+\end_inset
+
+ limit,
+ 
+\begin_inset Formula $\text{exp}\left(TS_{AB}\right)\to e^{T\lambda_{AB}}uv^{\dagger}$
+\end_inset
+
+,
+ so one can define a measure of the similarity between two cMPS as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+(A|B) & \coloneqq\lim_{T\to\infty}\dfrac{1}{T}\log\dfrac{\left\langle A|B\right\rangle _{T}}{\left\langle A|A\right\rangle _{T}^{1/2}\left\langle B|B\right\rangle _{T}^{1/2}}\\
+ & =\lim_{T\to\infty}\dfrac{1}{T}\log\left\langle A|B\right\rangle _{T}-\frac{1}{2}\left\langle A|A\right\rangle _{T}-\frac{1}{2}\left\langle B|B\right\rangle _{T}\\
+ & =\lim_{T\to\infty}\dfrac{1}{T}\left(T\lambda_{AB}-\dfrac{1}{2}T\lambda_{AA}-\dfrac{1}{2}T\lambda_{BB}\right)\\
+ & =\lambda_{AB}-\dfrac{1}{2}\lambda_{AA}-\dfrac{1}{2}\lambda_{BB}
+\end{align*}
+
+\end_inset
+
+where one has chosen the eigenvectors of all matrices such that 
+\begin_inset Formula $\text{tr}\left(uv^{\dagger}\right)=1$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We need to find 
+\begin_inset Formula $\max_{A}(A|B)$
+\end_inset
+
+,
+ that is 
+\begin_inset Formula $\max_{A}\left\{ \lambda_{AB}-\frac{1}{2}\lambda_{AA}\right\} $
+\end_inset
+
+ with the constraint that 
+\begin_inset Formula $\lambda_{AB}$
+\end_inset
+
+ and 
+\begin_inset Formula $\lambda_{AA}$
+\end_inset
+
+ are the largest real-part eigenvalues of 
+\begin_inset Formula $S_{AB}$
+\end_inset
+
+ and 
+\begin_inset Formula $S_{AA}$
+\end_inset
+
+,
+ respectively.
+ To do this,
+ we build a Lagrangian:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\mathcal{L}= & \sum_{x,z}\text{tr}P\left(x,z\right)^{\dag}\left(Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z":z"\neq z}Q\left(x,z"\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AB}Q\left(x,z\right)\right)+\\
+ & +\sum_{x,z}\text{tr}\tilde{P}\left(x,z\right)^{\dag}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)+\\
+ & +\lambda_{AB}-\frac{1}{2}\lambda_{AA}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and we put to zero the gradients with respect to all variables and multipliers:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\frac{\partial\mathcal{L}}{\partial\lambda_{AB}}= & 1-\sum_{x,z}\text{tr}P\left(x,z\right)^{\dag}Q\left(x,z\right)\\
+\frac{\partial\mathcal{L}}{\partial\lambda_{AA}}= & -\frac{1}{2}-\sum_{x,z}\text{tr}\tilde{P}\left(x,z\right)^{\dag}\tilde{Q}\left(x,z\right)\\
+\nabla_{A\left(x,x,z\right)}\mathcal{L}= & P\left(x,z\right)^{\dag}Q\left(x,z\right)+\tilde{P}\left(x,z\right)^{\dag}\tilde{Q}\left(x,z\right)+\tilde{P}\left(x,z\right)\tilde{Q}\left(x,z\right)^{\dag}\\
+= & P\left(x,z\right)^{\dag}Q\left(x,z\right)+2\tilde{P}\left(x,z\right)^{\dag}\tilde{Q}\left(x,z\right)\\
+\nabla_{A\left(x,y,z\right)}\mathcal{L}= & P\left(x,z\right)^{\dag}B\left(x,y,z\right)Q\left(y,z\right)+\tilde{P}\left(x,z\right)A\left(x,y,z\right)\tilde{Q}\left(y,z\right)^{\dag}+\tilde{P}\left(x,z\right)^{\dag}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)\\
+= & P\left(x,z\right)^{\dag}B\left(x,y,z\right)Q\left(y,z\right)+2\tilde{P}\left(x,z\right)^{\dag}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)\\
+\nabla_{P\left(x,z\right)}\mathcal{L}= & Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z":z"\neq z}Q\left(x,z"\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AB}Q\left(x,z\right)\\
+\nabla_{Q\left(x,z\right)}\mathcal{L}= & P\left(x,z\right)A\left(x,x,z\right)+B\left(x,x,z\right)^{\dag}P\left(x,z\right)+\sum_{z":z"\neq z}P\left(x,z"\right)+\sum_{y:y\neq x}B\left(y,x,z\right)^{\dag}P\left(y,z\right)A\left(y,x,z\right)-\lambda_{AB}P\left(x,z\right)\\
+\nabla_{\tilde{P}\left(x,z\right)}\mathcal{L}= & \tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\\
+\nabla_{\tilde{Q}\left(x,z\right)}\mathcal{L}= & \tilde{P}\left(x,z\right)A\left(x,x,z\right)+A\left(x,x,z\right)^{\dag}\tilde{P}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{P}\left(x,z"\right)+\sum_{y:y\neq x}A\left(y,x,z\right)^{\dag}\tilde{P}\left(y,z\right)A\left(y,x,z\right)-\lambda_{AA}\tilde{P}\left(x,z\right)
+\end{align*}
+
+\end_inset
+
+Solving this iteratively should give the sought cMPS 
+\begin_inset Formula $A$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection*
+Augmented Lagrangian Method
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\Phi\left(\underline{x},\underline{\nu},\mu_{k}\right)= & f\left(\underline{x}\right)+\frac{\mu_{k}}{2}\sum_{i}c_{i}^{2}+\sum_{i}\nu_{i}c_{i}=\\
+= & \lambda_{AB}-\frac{1}{2}\lambda_{AA}+\frac{\mu_{k}}{2}\text{tr}\left[\sum_{x,z}\left(Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z":z"\neq z}Q\left(x,z"\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AB}Q\left(x,z\right)\right)^{2}\right]+\\
+ & +\frac{\mu_{k}}{2}\text{tr}\left[\sum_{x,z}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)^{2}\right]+\\
+ & +\sum_{x,z}\text{tr}P\left(x,z\right)^{\dag}\left(Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z":z"\neq z}Q\left(x,z"\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AB}Q\left(x,z\right)\right)+\\
+ & +\sum_{x,z}\text{tr}\tilde{P}\left(x,z\right)^{\dag}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)=\\
+= & \lambda_{AB}-\frac{1}{2}\lambda_{AA}+\frac{\mu_{k}}{2}\left[q^{\dag}S_{AB}^{\dag}S_{AB}q\right]+\frac{\mu_{k}}{2}\left[\tilde{q}^{\dag}S_{AA}^{\dag}S_{AA}\tilde{q}\right]+p^{\dag}\left(S_{AB}q-\lambda_{AB}q\right)+\tilde{p}^{\dag}\left(S_{AA}\tilde{q}-\lambda_{AA}\tilde{q}\right)
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Formalism:
+ 
+\begin_inset Formula $\underline{x}=\left(\lambda_{AB},q^{\dag},\lambda_{AA},\tilde{q}^{\dag},\left(A(x,y,z)\right)_{x,y,z}\right)^{\dag}$
+\end_inset
+
+,
+ 
+\begin_inset Formula $\underline{\nu}=\left(p^{\dag},\tilde{p}^{\dag}\right)^{\dag}$
+\end_inset
+
+.
+ We have that
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\nabla_{\underline{x}}\Phi\left(\underline{x}\right) & =\nabla_{\underline{x}}f\left(\underline{x}\right)+J\left(\underline{x}\right)^{\dag}\left(\underline{\nu}+\mu_{k}\underline{c}\left(\underline{x}\right)\right)\\
+\left[\nabla_{\underline{x}}\Phi\left(\underline{x}\right)\right]_{i} & =\left[\nabla_{\underline{x}}f\left(\underline{x}\right)\right]_{i}+\sum_{j}\left[J\left(\underline{x}\right)\right]_{j,i}\left[\underline{\nu}+\mu_{k}\underline{c}\left(\underline{x}\right)\right]_{j}=\\
+ & =\left[\nabla_{\underline{x}}f\left(\underline{x}\right)\right]_{i}+\sum_{j}\left[\nabla_{\underline{x}}c_{j}\left(\underline{x}\right)\right]_{i}\left[\underline{\nu}+\mu_{k}\underline{c}\left(\underline{x}\right)\right]_{j}\\
+\frac{\partial\Phi}{\partial x_{i}} & =\frac{\partial f}{\partial x_{i}}+\sum_{j}\frac{\partial c_{j}}{\partial x_{i}}\left(\nu_{j}+\mu_{k}c_{j}\right)
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+\frac{\partial\mathcal{L}}{\partial\lambda_{AB}}= & 1-q^{\dag}p-\mu_{k}q^{\dag}\left(S_{AB}q-\lambda_{AB}q\right)=\\
+= & 1-\sum_{x,z}\text{tr}Q\left(x,z\right)^{\dag}\left[P\left(x,z\right)+\mu_{k}\left(Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z":z"\neq z}Q\left(x,z"\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AB}Q\left(x,z\right)\right)\right]\\
+\frac{\partial\mathcal{L}}{\partial\lambda_{AA}}= & -\frac{1}{2}-\tilde{q}^{\dag}\tilde{p}-\mu_{k}\tilde{q}^{\dag}\left(S_{AA}\tilde{q}-\lambda_{AA}\tilde{q}\right)=\\
+= & -\frac{1}{2}-\sum_{x,z}\text{tr}\tilde{Q}\left(x,z\right)^{\dag}\left[\tilde{P}\left(x,z\right)+\mu_{k}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)\right]\\
+\nabla_{q}\mathcal{L}= & \left(S_{AB}^{\dag}-\lambda_{AB}\mathbb{I}\right)\left[p+\mu_{k}\left(S_{AB}q-\lambda_{AB}q\right)\right]=\\
+\nabla_{\tilde{q}}\mathcal{L}= & \left(S_{AA}^{\dag}-\lambda_{AA}\mathbb{I}\right)\left[\tilde{p}+\mu_{k}\left(S_{AA}\tilde{q}-\lambda_{AA}\tilde{q}\right)\right]\\
+\nabla_{p}\mathcal{L}= & \left(S_{AB}-\lambda_{AB}\mathbb{I}\right)q\\
+\nabla_{\tilde{p}}\mathcal{L}= & \left(S_{AA}-\lambda_{AA}\mathbb{I}\right)\tilde{q}\\
+\nabla_{A\left(x,x,z\right)}\mathcal{L}= & P\left(x,z\right)^{\dag}Q\left(x,z\right)+\tilde{P}\left(x,z\right)^{\dag}\tilde{Q}\left(x,z\right)+\tilde{P}\left(x,z\right)\tilde{Q}\left(x,z\right)^{\dag}+\\
+ & +\mu_{k}\left(Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z":z"\neq z}Q\left(x,z"\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AB}Q\left(x,z\right)\right)^{\dag}Q\left(x,z\right)+\\
+ & +\mu_{k}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)^{\dag}\tilde{Q}\left(x,z\right)+\\
+ & +\mu_{k}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)\tilde{Q}\left(x,z\right)^{\dag}\\
+\nabla_{A\left(x,y,z\right)}\mathcal{L}= & P\left(x,z\right)^{\dag}B\left(x,y,z\right)Q\left(y,z\right)+\tilde{P}\left(x,z\right)^{\dag}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)+\tilde{P}\left(x,z\right)A\left(x,y,z\right)\tilde{Q}\left(y,z\right)^{\dag}+\\
+ & +\mu_{k}\left(Q\left(x,z\right)A\left(x,x,z\right)^{\dag}+B\left(x,x,z\right)Q\left(x,z\right)+\sum_{z":z"\neq z}Q\left(x,z"\right)+\sum_{y:y\neq x}B\left(x,y,z\right)Q\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AB}Q\left(x,z\right)\right)^{\dag}B\left(x,y,z\right)Q\left(y,z\right)+\\
+ & +\mu_{k}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)^{\dag}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)\\
+ & +\mu_{k}\left(\tilde{Q}\left(x,z\right)A\left(x,x,z\right)^{\dag}+A\left(x,x,z\right)\tilde{Q}\left(x,z\right)+\sum_{z":z"\neq z}\tilde{Q}\left(x,z"\right)+\sum_{y:y\neq x}A\left(x,y,z\right)\tilde{Q}\left(y,z\right)A\left(x,y,z\right)^{\dag}-\lambda_{AA}\tilde{Q}\left(x,z\right)\right)A\left(x,y,z\right)\tilde{Q}\left(y,z\right)^{\dag}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
