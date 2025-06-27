@@ -29,4 +29,4 @@ ascent!(A, AA; maxiters=[10], ηs=[1e-2], tols=[1e-16], maxiter_pow=10^3, tol_po
 
 using Profile
 Profile.clear()
-@profview_allocs ascent!(A, AA; maxiters=[100], ηs=[1e-2], tols=[1e-16], maxiter_pow=10^3, tol_pow=1e-16)
+@profview ascent!(A, AA; maxiters=[10], ηs=[1e-2], tols=[1e-16], maxiter_pow=10^3, tol_pow=1e-16)
